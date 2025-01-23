@@ -15,7 +15,7 @@ enum PluginError: Error {
         case .sourceModuleNotFound:
             return "Failed to load the string catalog."
         case .fileWritingFailed(let error):
-            return "Failed to write L10n.swift: \(error)"
+            return "Failed to write localization file: \(error)"
         }
     }
 }
