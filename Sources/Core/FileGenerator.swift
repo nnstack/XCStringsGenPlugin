@@ -3,7 +3,7 @@ import PackagePlugin
 
 struct FileGenerator {
     static func generate(with catalogURL: URL, workDirectoryURL: URL) throws -> [Command] {
-        let outputURL = workDirectoryURL.appendingPathComponent("Loc.swift")
+        let outputURL = workDirectoryURL.appendingPathComponent("L10n.swift")
 
         guard let data = try? Data(contentsOf: catalogURL) else {
             throw PluginError.catalogLoadingFailed
@@ -14,7 +14,7 @@ struct FileGenerator {
         var content = """
         import Foundation
 
-        enum Loc {
+        enum L10n {
         """
 
         for (key, stringEntry) in catalog.strings.sorted(by: { $0.key < $1.key }) {
@@ -23,19 +23,7 @@ struct FileGenerator {
             }
 
             content += "\n"
-            let camelCaseKey = key.camelCased()
-            content += "  /// \(value)\n"
-            if value.contains("%@") {
-                content += """
-                  static func \(camelCaseKey)(_ args: CVarArg...) -> String {
-                    String(format: NSLocalizedString("\(key)", comment: ""), arguments: args)
-                  }\n
-                """
-            } else {
-                content += """
-                  static let \(camelCaseKey): String = NSLocalizedString("\(key)", comment: "")\n
-                """
-            }
+            content += EntryGenerator.generate(for: key.camelCased(), value: value)
         }
 
         content += "}\n"
@@ -43,14 +31,13 @@ struct FileGenerator {
         try content.write(to: outputURL, atomically: true, encoding: .utf8)
 
         return [
-            .buildCommand(
+            .prebuildCommand(
                 displayName: "XCStringsGenPlugin",
-                executable: URL(fileURLWithPath: "/usr/bin/env"),
+                executable: URL(fileURLWithPath: "/bin/echo"),
                 arguments: [
-                    "echo", "File generated at: \(outputURL)"
+                    "File generated at: \(outputURL.path())"
                 ],
-                inputFiles: [catalogURL],
-                outputFiles: [outputURL]
+                outputFilesDirectory: workDirectoryURL
             )
         ]
     }
