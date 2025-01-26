@@ -18,6 +18,10 @@ extension Command {
                 "--output",
                 outputURL.path
             ],
+            environment: [
+                // Disables LLVM profile collection for this tool to prevent sandbox write errors
+                "LLVM_PROFILE_FILE": "/dev/null"
+            ],
             inputFiles: catalogURLs,
             outputFiles: [outputURL]
         )
