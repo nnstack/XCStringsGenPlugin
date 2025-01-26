@@ -1,30 +1,29 @@
 import Foundation
 
 struct EntryGenerator {
-    static func generate(for key: String, value: String) -> String {
+    static func generate(for key: String, unit: StringUnit, indentLevel: Int) -> String {
+        var contentBuilder = ContentBuilder(indentLevel: indentLevel)
+
         var parameters = [String]()
         var arguments = [String]()
-
-        let types = TypeExtractor.extract(from: value)
+        let types = TypeExtractor.extract(from: unit.value)
         types.enumerated().forEach { (i, type) in
             parameters.append("_ arg\(i + 1): \(type)")
             arguments.append("arg\(i + 1)")
         }
 
-        var content = "  /// \(value)\n"
+        contentBuilder.add("/// \(unit.value)")
         if types.count > 0 {
             let parameterString: String = parameters.joined(separator: ", ")
             let argumentString: String = arguments.joined(separator: ", ")
-            content += """
-              static func \(key)(\(parameterString)) -> String {
-                String(format: NSLocalizedString("\(key)", comment: ""), \(argumentString))
-              }\n
-            """
+            contentBuilder.add("static func \(key)(\(parameterString)) -> String {")
+            contentBuilder.indent()
+            contentBuilder.add("String(format: NSLocalizedString(\"\(key)\", comment: \"\"), \(argumentString))")
+            contentBuilder.outdent()
+            contentBuilder.add("}")
         } else {
-            content += """
-              static let \(key): String = NSLocalizedString("\(key)", comment: "")\n
-            """
+            contentBuilder.add("static let \(key): String = NSLocalizedString(\"\(key)\", comment: \"\")")
         }
-        return content
+        return contentBuilder.content
     }
 }

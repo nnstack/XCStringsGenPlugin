@@ -17,28 +17,31 @@ struct XCStringsGen: ParsableCommand {
     }
 
     private func generateFile(from catalogURLs: [URL], to outputURL: URL) throws {
-        var content = """
-        import Foundation
-
-        enum L10n {
-        """
+        var contentBuilder = ContentBuilder()
+        contentBuilder.add("import Foundation\n")
+        contentBuilder.add("enum L10n {")
 
         for catalogURL in catalogURLs {
             let data = try Data(contentsOf: catalogURL)
             let catalog = try JSONDecoder().decode(StringCatalog.self, from: data)
 
-            content += "\n"
-            content += catalog.strings
+            let entriesString = catalog.strings
                 .sorted { $0.key < $1.key }
-                .compactMap { key, entry in
+                .compactMap { key, entry -> String? in
                     guard let localization = entry.localizations[catalog.sourceLanguage] else { return nil }
-                    return EntryGenerator.generate(for: key.camelCased(), value: localization.stringUnit.value)
+                    return EntryGenerator.generate(
+                        for: key.camelCased(),
+                        unit: localization.stringUnit,
+                        indentLevel: contentBuilder.indentLevel + 1
+                    )
                 }
                 .joined(separator: "\n")
+            contentBuilder.addAsIs(entriesString)
         }
 
-        content += "}\n"
-        try content.write(to: outputURL, atomically: true, encoding: .utf8)
+        contentBuilder.add("}")
+
+        try contentBuilder.content.write(to: outputURL, atomically: true, encoding: .utf8)
     }
 }
 
