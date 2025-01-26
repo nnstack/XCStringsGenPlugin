@@ -21,9 +21,17 @@ struct XCStringsGen: ParsableCommand {
         contentBuilder.add("import Foundation\n")
         contentBuilder.add("enum L10n {")
 
+        let hasMoreThanOneCatalog = catalogURLs.count > 1
         for catalogURL in catalogURLs {
             let data = try Data(contentsOf: catalogURL)
             let catalog = try JSONDecoder().decode(StringCatalog.self, from: data)
+            let fileName = catalogURL.deletingPathExtension().lastPathComponent
+
+            if hasMoreThanOneCatalog {
+                contentBuilder.indent()
+                contentBuilder.add(verbatim: "\n")
+                contentBuilder.add("enum \(fileName) {")
+            }
 
             let entriesString = catalog.strings
                 .sorted { $0.key < $1.key }
@@ -36,7 +44,12 @@ struct XCStringsGen: ParsableCommand {
                     )
                 }
                 .joined(separator: "\n")
-            contentBuilder.addAsIs(entriesString)
+            contentBuilder.add(verbatim: entriesString)
+
+            if hasMoreThanOneCatalog {
+                contentBuilder.add("}")
+                contentBuilder.outdent()
+            }
         }
 
         contentBuilder.add("}")

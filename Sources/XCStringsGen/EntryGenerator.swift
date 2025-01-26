@@ -12,7 +12,8 @@ struct EntryGenerator {
             arguments.append("arg\(i + 1)")
         }
 
-        contentBuilder.add("/// \(unit.value)")
+        let comment = unit.value.components(separatedBy: .whitespacesAndNewlines).joined(separator: " ")
+        contentBuilder.add("/// \(comment)")
         if types.count > 0 {
             let parameterString: String = parameters.joined(separator: ", ")
             let argumentString: String = arguments.joined(separator: ", ")
