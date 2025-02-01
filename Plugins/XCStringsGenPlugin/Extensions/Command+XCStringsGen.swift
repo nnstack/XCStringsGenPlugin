@@ -10,7 +10,7 @@ extension Command {
         let outputURL = workDirectoryURL.appending(path: "L10n.swift")
 
         return .buildCommand(
-            displayName: "XCStringsGenPlugin",
+            displayName: "XCStringsGen: Code generation",
             executable: tool.url,
             arguments: [
                 "--catalogs",

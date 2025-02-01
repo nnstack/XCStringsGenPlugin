@@ -34,11 +34,16 @@ struct XCStringsGen: ParsableCommand {
             }
 
             let entriesString = catalog.strings
-                .sorted { $0.key < $1.key }
-                .compactMap { key, entry -> String? in
+                .compactMap { (key: String, entry: StringEntry) in
+                    guard let attributeName = key.attributeName() else { return nil }
+                    return (key, attributeName, entry)
+                }
+                .sorted { $0.1 < $1.1 }
+                .compactMap { (key: String, attributeName: String, entry: StringEntry) -> String? in
                     guard let localization = entry.localizations[catalog.sourceLanguage] else { return nil }
                     return EntryGenerator.generate(
-                        for: key.camelCased(),
+                        for: key,
+                        attributeName: attributeName,
                         unit: localization.stringUnit,
                         indentLevel: contentBuilder.indentLevel + 1
                     )

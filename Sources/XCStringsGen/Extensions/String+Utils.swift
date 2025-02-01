@@ -1,7 +1,12 @@
 import Foundation
+import SwiftParser
 
 extension String {
     private var separators: String { "_-." }
+
+    private func escapedAttributeNameIfReserved() -> String {
+        isValidSwiftIdentifier(for: .variableName) ? self : "`\(self)`"
+    }
 
     private func camelCased() -> String {
         let components = components(separatedBy: CharacterSet(charactersIn: separators))
@@ -23,6 +28,7 @@ extension String {
             sanitized = String(sanitized.dropFirst())
         }
 
-        return sanitized.isEmpty ? nil : sanitized.camelCased()
+        return sanitized.isEmpty ? nil : sanitized.camelCased().escapedAttributeNameIfReserved()
+    }
     }
 }

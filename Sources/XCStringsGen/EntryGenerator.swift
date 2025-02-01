@@ -1,7 +1,7 @@
 import Foundation
 
 struct EntryGenerator {
-    static func generate(for key: String, unit: StringUnit, indentLevel: Int) -> String {
+    static func generate(for key: String, attributeName: String, unit: StringUnit, indentLevel: Int) -> String {
         var contentBuilder = ContentBuilder(indentLevel: indentLevel)
 
         var parameters = [String]()
@@ -17,13 +17,13 @@ struct EntryGenerator {
         if types.count > 0 {
             let parameterString: String = parameters.joined(separator: ", ")
             let argumentString: String = arguments.joined(separator: ", ")
-            contentBuilder.add("static func \(key)(\(parameterString)) -> String {")
+            contentBuilder.add("static func \(attributeName)(\(parameterString)) -> String {")
             contentBuilder.indent()
             contentBuilder.add("String(format: NSLocalizedString(\"\(key)\", comment: \"\"), \(argumentString))")
             contentBuilder.outdent()
             contentBuilder.add("}")
         } else {
-            contentBuilder.add("static let \(key): String = NSLocalizedString(\"\(key)\", comment: \"\")")
+            contentBuilder.add("static let \(attributeName): String = NSLocalizedString(\"\(key)\", comment: \"\")")
         }
         return contentBuilder.content
     }

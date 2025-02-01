@@ -14,7 +14,8 @@ let package = Package(
         .executable(name: "XCStringsGen", targets: ["XCStringsGen"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0")
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
+        .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.1")
     ],
     targets: [
         .plugin(
@@ -27,7 +28,8 @@ let package = Package(
         .executableTarget(
             name: "XCStringsGen",
             dependencies: [
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "SwiftParser", package: "swift-syntax")
             ]
         ),
     ]
