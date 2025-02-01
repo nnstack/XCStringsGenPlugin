@@ -22,14 +22,15 @@ struct TypeExtractor {
     }
 
     private static func paramType(for formatSpecifier: String) -> String? {
-        switch formatSpecifier {
-        case "%@":
+        guard formatSpecifier.first == "%" else { return nil }
+        switch formatSpecifier.last {
+        case "@":
             return String(describing: String.self)
-        case "%i", "%d", "%lld":
+        case "i", "d":
             return String(describing: Int.self)
-        case "%u", "%x", "%o":
+        case "u", "x", "o":
             return String(describing: UInt.self)
-        case "%a", "%e", "%f", "%g":
+        case "a", "e", "f", "g":
             return String(describing: Double.self)
         default:
             return nil

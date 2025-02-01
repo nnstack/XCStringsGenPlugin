@@ -10,13 +10,13 @@ struct XCStringsGen: ParsableCommand {
     var output: String
 
     func run() throws {
-        let catalogURLs = try parseCatalogPaths()
-        let outputURL = try parseOutputPath()
+        let catalogURLs = try catalogs.parsedCatalogURLs()
+        let outputURL = try output.parsedOutputURL()
         try generateFile(from: catalogURLs, to: outputURL)
         print("File generated at: \(outputURL.path)")
     }
 
-    private func generateFile(from catalogURLs: [URL], to outputURL: URL) throws {
+    func generateFile(from catalogURLs: [URL], to outputURL: URL) throws {
         var contentBuilder = ContentBuilder()
         contentBuilder.add("import Foundation\n")
         contentBuilder.add("enum L10n {")
@@ -60,31 +60,5 @@ struct XCStringsGen: ParsableCommand {
         contentBuilder.add("}")
 
         try contentBuilder.content.write(to: outputURL, atomically: true, encoding: .utf8)
-    }
-}
-
-private extension XCStringsGen {
-    private func parseCatalogPaths() throws -> [URL] {
-        let paths = catalogs.split(separator: ",").map(String.init)
-        guard !paths.isEmpty else {
-            throw PluginError.invalidCatalogPaths
-        }
-
-        return paths.map { path in
-            let url = URL(fileURLWithPath: path).standardized
-            guard FileManager.default.fileExists(atPath: url.path) else {
-                fatalError("File not found at path: \(path)")
-            }
-            return url
-        }
-    }
-
-    private func parseOutputPath() throws -> URL {
-        let outputURL = URL(fileURLWithPath: output).standardized
-        try FileManager.default.createDirectory(
-            at: outputURL.deletingLastPathComponent(),
-            withIntermediateDirectories: true
-        )
-        return outputURL
     }
 }

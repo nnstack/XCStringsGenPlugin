@@ -30,5 +30,28 @@ extension String {
 
         return sanitized.isEmpty ? nil : sanitized.camelCased().escapedAttributeNameIfReserved()
     }
+
+    func parsedCatalogURLs() throws -> [URL] {
+        let paths = split(separator: ",").map(String.init)
+        guard !paths.isEmpty else {
+            throw PluginError.invalidCatalogPaths
+        }
+
+        return paths.map { path in
+            let url = URL(fileURLWithPath: path).standardized
+            guard FileManager.default.fileExists(atPath: url.path) else {
+                fatalError("File not found at path: \(path)")
+            }
+            return url
+        }
+    }
+
+    func parsedOutputURL() throws -> URL {
+        let outputURL = URL(fileURLWithPath: self).standardized
+        try FileManager.default.createDirectory(
+            at: outputURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        return outputURL
     }
 }

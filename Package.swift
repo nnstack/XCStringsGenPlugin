@@ -23,14 +23,22 @@ let package = Package(
             capability: .buildTool(),
             dependencies: [
                 .target(name: "XCStringsGen")
-            ]
+            ],
+            path: "Plugins/XCStringsGenPlugin"
         ),
         .executableTarget(
             name: "XCStringsGen",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "SwiftParser", package: "swift-syntax")
-            ]
+            ],
+            path: "Sources/XCStringsGen"
         ),
+        .testTarget(
+            name: "XCStringsGenTests",
+            dependencies: [
+                .target(name: "XCStringsGen")
+            ]
+        )
     ]
 )
